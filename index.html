@@ -22,7 +22,7 @@
     font-family:Arial,Helvetica,sans-serif;
     background:var(--bg);
     color:var(--fg);
-    padding:14px;            /* smaller outer padding */
+    padding:14px;
     margin:0;
   }
   h1{font-size:18px;margin:0 0 8px 0}
@@ -37,7 +37,7 @@
   .grid{
     display:grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap:12px;               /* smaller gaps */
+    gap:12px;
     align-items:start;
   }
   @media (max-width: 980px){
@@ -46,9 +46,9 @@
 
   .section{
     border:1px solid var(--line);
-    border-radius:12px;     /* slightly smaller radius */
-    padding:10px;           /* smaller padding */
-    margin-bottom:12px;     /* smaller spacing */
+    border-radius:12px;
+    padding:10px;
+    margin-bottom:12px;
     background: rgba(18,26,51,.28);
   }
   .section > b{
@@ -78,24 +78,20 @@
     border-color:var(--selLine);
   }
 
-  /* Shared option style */
   .item, .radioRow{
     border:1px solid var(--line);
     border-radius:10px;
-    padding:8px 10px;       /* tighter */
-    margin:6px 0;           /* tighter */
+    padding:8px 10px;
+    margin:6px 0;
     cursor:pointer;
     transition:background .15s,border-color .15s;
     background: rgba(0,0,0,.10);
     color: inherit;
-    font-size: 13px;        /* slightly smaller */
-    line-height:1.1;
+    font-size:13px;
+    line-height:1.15;
     display:flex;
     gap:8px;
     align-items:center;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
   }
   .item:hover, .radioRow:hover{border-color:var(--selLine)}
   .item.active, .radioRow.active{
@@ -108,23 +104,33 @@
     font-family:monospace;
     display:inline-block;
     min-width:62px;
-    font-size:17px;         /* still larger code, but slightly reduced */
+    font-size:17px;
     line-height:1;
+    flex:0 0 auto;
   }
 
-  .radioRow{ align-items:center; }
-  .radioRow input{ margin:0 0 0 2px; flex:0 0 auto; }
-  .text{ flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .radioRow{
+    align-items:flex-start;
+    user-select:none;
+  }
+  .radioRow input{
+    margin:2px 0 0 2px;
+    flex:0 0 auto;
+    pointer-events:none;
+  }
+  .text{
+    flex:1 1 auto;
+    min-width:0;
+  }
 
-  /* Conclusion */
   .resultBlock{
     border:1px solid var(--line);
     border-radius:10px;
     padding:10px;
     background:var(--card);
     line-height:1.35;
-    font-family: inherit;
-    font-size: 13px;
+    font-family:inherit;
+    font-size:13px;
   }
   .muted{color:var(--muted)}
 
@@ -138,14 +144,19 @@
     border-radius:10px;
     padding:10px;
     background: rgba(0,0,0,.18);
-    font-family: inherit;
-    font-size: 13px;
+    font-family:inherit;
+    font-size:13px;
     line-height:1.35;
   }
   .policy h4{margin:8px 0 4px 0; font-size:13px}
-
-  /* Tighten paragraphs inside policy */
   .policy p{margin:6px 0}
+  .policy ul{
+    margin:6px 0 6px 18px;
+    padding:0;
+  }
+  .policy li{
+    margin:4px 0;
+  }
 </style>
 </head>
 <body>
@@ -166,14 +177,15 @@
     </div>
 
     <div class="item" data-group="T" data-value="T3" title="T3: tumor > 4 cm of minimale boterosie of perineurale invasie (in zenuwen dikker dan 0,1 mm of diepe zenuwen (> dermis) of diepe invasie)">
-      <span class="code">T3</span><span class="text">tumor &gt; 4 cm<br>of minimale boterosie<br>of perineurale invasie (in zenuwen &gt; 0,1 mm<br>of diepe zenuwen &gt; dermis<br>of diepe invasie)</span>
+      <span class="code">T3</span>
+      <span class="text">tumor &gt; 4 cm<br>of minimale boterosie<br>of perineurale invasie (in zenuwen &gt; 0,1 mm<br>of diepe zenuwen &gt; dermis<br>of diepe invasie)</span>
     </div>
 
     <div class="item" data-group="T" data-value="T4a" title="T4a: tumor met bot/beenmerginvasie">
       <span class="code">T4a</span><span class="text">tumor met bot/beenmerginvasie</span>
     </div>
 
-    <div class="item" data-group="T" data-value="T4b" title="T4b: tumor met schedelbasisinvasie<br>en/of schedelbasisforamen betrokkenheid">
+    <div class="item" data-group="T" data-value="T4b" title="T4b: tumor met schedelbasisinvasie en/of schedelbasisforamen betrokkenheid">
       <span class="code">T4b</span><span class="text">tumor met schedelbasisinvasie<br>en/of schedelbasisforamen betrokkenheid</span>
     </div>
   </div>
@@ -201,11 +213,10 @@
 
 </div>
 
-
 <div class="section">
   <b>Recidief</b>
 
-  <label class="radioRow" title="Geen recidief">
+  <label class="radioRow active" title="Geen recidief">
     <input type="radio" name="recidief" value="nee" checked>
     <span class="text">Nee</span>
   </label>
@@ -219,24 +230,68 @@
 <div class="section">
   <b>Histopathologie / tumorstatus</b>
 
-  <label class="radioRow" title="Slecht gedifferentieerde of ongedifferentieerde tumor">
-    <input type="radio" name="histo" value="poor">
+  <label class="radioRow histoRow" title="Slecht gedifferentieerde of ongedifferentieerde tumor">
+    <input type="checkbox" name="histo" value="poor">
     <span class="text">Slecht gedifferentieerde of ongedifferentieerde tumor</span>
   </label>
 
-  <label class="radioRow" title="Lymfangio-invasie">
-    <input type="radio" name="histo" value="lymph">
+  <label class="radioRow histoRow" title="Lymfangio-invasie">
+    <input type="checkbox" name="histo" value="lymph">
     <span class="text">Lymfangio-invasie</span>
   </label>
 
-  <label class="radioRow" title="Dermale perineurale invasie van elke zenuwdiameter aanwezig buiten de contour van de tumor">
-    <input type="radio" name="histo" value="pni">
+  <label class="radioRow histoRow" title="Dermale perineurale invasie van elke zenuwdiameter aanwezig buiten de contour van de tumor">
+    <input type="checkbox" name="histo" value="pni_outside">
     <span class="text">Dermale perineurale invasie van elke zenuwdiameter aanwezig buiten de contour van de tumor</span>
   </label>
 
-    <label class="radioRow" title="Geen van bovenstaande histopathologische kenmerken">
-    <input type="radio" name="histo" value="none">
+  <label class="radioRow histoRow" title="Dermale perineurale invasie van elke zenuwdiameter aanwezig binnen de contour van de tumor">
+    <input type="checkbox" name="histo" value="pni_inside">
+    <span class="text">Dermale perineurale invasie van elke zenuwdiameter aanwezig binnen de contour van de tumor</span>
+  </label>
+
+  <label class="radioRow histoRow" title="Geen van bovenstaande histopathologische kenmerken">
+    <input type="checkbox" name="histo" value="none">
     <span class="text">Geen van bovenstaande histopathologische kenmerken</span>
+  </label>
+</div>
+
+<div class="section">
+  <b>Complicerende factoren</b>
+
+  <label class="radioRow compRow" title="Tumor is moeilijk af te grenzen">
+    <input type="checkbox" name="complicaties" value="ill_defined">
+    <span class="text">Tumor is moeilijk af te grenzen</span>
+  </label>
+
+  <label class="radioRow compRow" title="Weefselbesparing van de specifieke locatie is belangrijk voor functiebehoud of cosmetisch resultaat">
+    <input type="checkbox" name="complicaties" value="tissue_sparing">
+    <span class="text">Weefselbesparing van de specifieke locatie is belangrijk voor functiebehoud of cosmetisch resultaat</span>
+  </label>
+
+  <label class="radioRow compRow" title="Na irradicale excisie kunnen de beoogde histopathologische marges niet behaald worden bij re-excisie">
+    <input type="checkbox" name="complicaties" value="margins_not_achievable">
+    <span class="text">Na irradicale excisie kunnen de beoogde histopathologische marges niet behaald worden bij re-excisie</span>
+  </label>
+
+  <label class="radioRow compRow" title="Chirurgische radicaliteit niet haalbaar">
+    <input type="checkbox" name="complicaties" value="radicality_not_feasible">
+    <span class="text">Chirurgische radicaliteit niet haalbaar</span>
+  </label>
+
+  <label class="radioRow compRow" title="Chirurgische behandeling in het geheel niet mogelijk">
+    <input type="checkbox" name="complicaties" value="surgery_not_possible">
+    <span class="text">Chirurgische behandeling in het geheel niet mogelijk</span>
+  </label>
+
+  <label class="radioRow compRow" title="Klinische verdenking op ossale betrokkenheid c.q. infiltratie in diepere weke delen">
+    <input type="checkbox" name="complicaties" value="osseous_or_deep_soft_tissue_suspicion">
+    <span class="text">Klinische verdenking op ossale betrokkenheid c.q. infiltratie in diepere weke delen</span>
+  </label>
+
+  <label class="radioRow compRow" title="Geen van bovenstaande factoren">
+    <input type="checkbox" name="complicaties" value="none">
+    <span class="text">Geen van bovenstaande factoren</span>
   </label>
 </div>
 
@@ -247,15 +302,15 @@
   <div class="policy" id="policyBox" style="display:none;">
     <b>Advies</b>
     <div id="policyText" class="muted" style="margin-top:6px;"></div>
-</div>
   </div>
 </div>
 
 <script>
   let state = { T:null, N:null, M:null };
   let nMode = "clinical";
-  let histoChoice = null;
-  let recidief = 'nee';
+  let histoChoices = [];
+  let complicatingFactors = [];
+  let recidief = "nee";
 
   const Nclinical = [
     ["N0","geen regionale lymfekliermetastase"],
@@ -285,6 +340,7 @@
     if(T === "T4a" || T === "T4b") return "T4";
     return T;
   }
+
   function nGroup(N){
     if(!N) return null;
     if(N === "N0" || N === "N1") return N;
@@ -293,7 +349,7 @@
     return N;
   }
 
-  function bepaalStadium(T,N,M){
+  function bepaalStadium(T, N, M){
     const TG = tGroup(T);
     const NG = nGroup(N);
     if(!TG || !NG || !M) return "?";
@@ -309,67 +365,142 @@
     return "?";
   }
 
-  function bepaalRisico(T, h){
-    if(recidief === 'ja') return { label:"Hoog-risico", cls:"risk-high" };
-    if(!T || !h) return null;
-    
+  function bepaalRisico(T, histos){
+    if(recidief === "ja") return { label:"Hoog-risico", cls:"risk-high" };
+    if(!T || !histos.length) return null;
 
     const TG = tGroup(T);
-    const hasRiskFactor = (h !== "none");
 
-    if(TG === "T1" && !hasRiskFactor) return { label:"Laag-risico", cls:"risk-low" };
-    if((TG === "T2" && !hasRiskFactor) || (TG === "T1" && hasRiskFactor)) return { label:"Intermediair-risico", cls:"risk-mid" };
+    const onlyInsidePNI = histos.length === 1 && histos.includes("pni_inside");
+    const hasOnlyNone = histos.length === 1 && histos.includes("none");
+    const hasRiskFactor = !hasOnlyNone && !onlyInsidePNI;
+
+    if(TG === "T1" && (hasOnlyNone || onlyInsidePNI)) return { label:"Laag-risico", cls:"risk-low" };
+    if((TG === "T2" && (hasOnlyNone || onlyInsidePNI)) || (TG === "T1" && hasRiskFactor)) return { label:"Intermediair-risico", cls:"risk-mid" };
     if(TG === "T3" || TG === "T4" || (TG === "T2" && hasRiskFactor)) return { label:"Hoog-risico", cls:"risk-high" };
 
     return null;
   }
 
-  function beleidTekst(r, Nbase){
-    const heeftRegionaleLymfadenopathie = !!(Nbase && Nbase !== "N0");
+  function formatAdviezen(items){
+    const filtered = items.filter(Boolean);
+    if(filtered.length === 0) return "";
+    if(filtered.length === 1) return filtered[0];
+    return `<ul>${filtered.map(item => `<li>${item}</li>`).join("")}</ul>`;
+  }
 
-    const beeldvorming = (()=>{
-      let advies = "";
-      if(r === "Hoog-risico"){
-        advies = "Verricht in de diagnostische fase bij hoog-risico cPCC een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.";
-      }
-      if(r === "Laag-risico"){
-        advies = "Verricht in de diagnostische fase bij laag-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.";
-      }
-      if(r === "Intermediair-risico"){
-        advies = "Verricht in de diagnostische fase bij intermediair-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.";
-      }
-      // If N is not N0 (lymfogene metastasis), add PET-CT advice
-      if(Nbase !== "N0"){
-        advies += "<br>Verricht een FDG PET-CT bij patiënten met lymfogeen gemetastaseerd cPCC als screeningsonderzoek naar afstandsmetastasen.";
-      }
-      return advies;
-    })();
+  function getTherapieVoorstel(riskLabel, factors){
+    const adviezen = [];
 
-    if(r==="Laag-risico") return `
-      <h4>Excisie</h4>
-      Conventionele excisie met een marge van ≥4 mm (met een vrije histologisch marge van ≥1 mm).
+    if(factors.includes("surgery_not_possible")){
+      adviezen.push("Overweeg primaire radiotherapie.");
+      return formatAdviezen(adviezen);
+    }
+
+    if(factors.includes("ill_defined") || factors.includes("tissue_sparing")){
+      adviezen.push("Mohs-micrografische chirurgie of excisie volgens Breuninger methode.");
+      return formatAdviezen(adviezen);
+    }
+
+    if(riskLabel === "Laag-risico"){
+      adviezen.push("Conventionele excisie met een marge van ≥4 mm (met een vrije histologische marge van ≥1 mm).");
+    }
+    if(riskLabel === "Intermediair-risico"){
+      adviezen.push("Conventionele excisie met een marge van ≥6 mm (met een vrije histologische marge ≥2 mm).");
+    }
+    if(riskLabel === "Hoog-risico"){
+      adviezen.push("Conventionele excisie met een marge van ≥10 mm (met een vrije histologische marge ≥2 mm).");
+    }
+
+    return formatAdviezen(adviezen);
+  }
+
+  function getAdjuvanteRadiotherapie(factors, histos){
+    const indicatie =
+      factors.includes("margins_not_achievable") ||
+      recidief === "ja" ||
+      histos.includes("pni_inside") ||
+      histos.includes("pni_outside");
+
+    return indicatie ? "Indicatie voor adjuvante radiotherapie." : "Geen indicatie.";
+  }
+
+  function getMDOadvies(riskLabel, factors, Nbase, Mbase){
+    const heeftReferentiecentrumAdvies =
+      riskLabel === "Hoog-risico" ||
+      factors.includes("tissue_sparing") ||
+      factors.includes("surgery_not_possible") ||
+      (Nbase && Nbase !== "N0") ||
+      (Mbase && Mbase !== "M0");
+
+    if(heeftReferentiecentrumAdvies){
+      return "Bespreek in een multidisciplinair team van een referentiecentrum.";
+    }
+
+    if(factors.includes("radicality_not_feasible")){
+      return "Bespreek in lokaal MDO.";
+    }
+
+    return "Geen aanvullend MDO-advies.";
+  }
+
+  function getBeeldvorming(r, Nbase, factors, histos){
+    const adviezen = [];
+
+    if(r === "Hoog-risico"){
+      adviezen.push("Verricht in de diagnostische fase bij hoog-risico cPCC een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+    }
+    if(r === "Laag-risico"){
+      adviezen.push("Verricht in de diagnostische fase bij laag-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+    }
+    if(r === "Intermediair-risico"){
+      adviezen.push("Verricht in de diagnostische fase bij intermediair-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+    }
+
+    if(Nbase && Nbase !== "N0"){
+      adviezen.push("Verricht een FDG PET-CT bij patiënten met lymfogeen gemetastaseerd cPCC als screeningsonderzoek naar afstandsmetastasen.");
+    }
+
+    if(
+      factors.includes("osseous_or_deep_soft_tissue_suspicion") ||
+      histos.includes("pni_outside") ||
+      histos.includes("pni_inside")
+    ){
+      adviezen.push("Overweeg een CT of MRI ter beoordeling van ossale betrokkenheid/infiltratie in diepere weke delen.");
+    }
+
+    return formatAdviezen(adviezen);
+  }
+
+  function getFollowUp(r){
+    const adviezen = [];
+
+    if(r === "Laag-risico"){
+      adviezen.push("Verricht na radicale excisie een post-operatieve controle binnen 3 maanden en een controle 1 keer per 6–12 maanden gedurende de eerste twee jaar.");
+    }
+    if(r === "Intermediair-risico"){
+      adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer in het derde jaar.");
+    }
+    if(r === "Hoog-risico"){
+      adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer per jaar gedurende het derde, vierde en vijfde jaar.");
+    }
+
+    return formatAdviezen(adviezen);
+  }
+
+  function beleidTekst(r, Nbase, Mbase, factors, histos){
+    return `
+      <h4>Therapie-voorstel</h4>
+      ${getTherapieVoorstel(r, factors)}
+      <h4>Adjuvante radiotherapie</h4>
+      ${getAdjuvanteRadiotherapie(factors, histos)}
+      <h4>MDO</h4>
+      ${getMDOadvies(r, factors, Nbase, Mbase)}
       <h4>Follow-up</h4>
-      Verricht na radicale excisie een post-operatieve controle binnen 3 maanden en een controle 1 keer per 6–12 maanden gedurende de eerste twee jaar.
+      ${getFollowUp(r)}
       <h4>Beeldvorming</h4>
-      ${beeldvorming}
+      ${getBeeldvorming(r, Nbase, factors, histos)}
     `;
-    if(r==="Intermediair-risico") return `
-      <h4>Excisie</h4>
-      Conventionele excisie met een marge van ≥6 mm (met een vrije histologisch marge ≥ 2 mm).
-      <h4>Follow-up</h4>
-      Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer in het derde jaar.
-      <h4>Beeldvorming</h4>
-      ${beeldvorming}
-    `;
-    if(r==="Hoog-risico") return `
-      <h4>Excisie</h4>
-      Conventionele excisie met een marge van ≥10 mm (met een vrije histologisch marge ≥ 2 mm).
-      <h4>Follow-up</h4>
-      Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer per jaar gedurende het derde, vierde en vijfde jaar.
-      <h4>Beeldvorming</h4>
-      ${beeldvorming}
-    `;
-    return "";
   }
 
   function renderN(){
@@ -377,20 +508,52 @@
     box.innerHTML = "";
     const arr = (nMode === "clinical") ? Nclinical : Npath;
 
-    arr.forEach(([code, def])=>{
+    arr.forEach(([code, def]) => {
       const shown = `${nPrefix()}${code}`;
       const div = document.createElement("div");
       div.className = "item" + (state.N === code ? " active" : "");
       div.title = `${shown}: ${def}`;
       div.innerHTML = `<span class="code">${shown}</span><span class="text">${def}</span>`;
-      div.onclick = ()=>{
-        box.querySelectorAll(".item").forEach(x=>x.classList.remove("active"));
+      div.onclick = () => {
+        box.querySelectorAll(".item").forEach(x => x.classList.remove("active"));
         div.classList.add("active");
         state.N = code;
         update();
       };
       box.appendChild(div);
     });
+  }
+
+  function updateCheckboxGroup(name, storageVarName){
+    const inputs = Array.from(document.querySelectorAll(`input[name="${name}"]`));
+    const noneInput = inputs.find(i => i.value === "none");
+
+    if(noneInput && noneInput.checked){
+      inputs.forEach(i => {
+        if(i.value !== "none"){
+          i.checked = false;
+          i.closest(".radioRow").classList.remove("active");
+        }
+      });
+    } else {
+      if(inputs.some(i => i.value !== "none" && i.checked) && noneInput){
+        noneInput.checked = false;
+        noneInput.closest(".radioRow").classList.remove("active");
+      }
+    }
+
+    const selected = inputs.filter(i => i.checked).map(i => i.value);
+
+    inputs.forEach(i => {
+      i.closest(".radioRow").classList.toggle("active", i.checked);
+    });
+
+    if(storageVarName === "histoChoices"){
+      histoChoices = selected;
+    }
+    if(storageVarName === "complicatingFactors"){
+      complicatingFactors = selected;
+    }
   }
 
   function update(){
@@ -407,12 +570,12 @@
       html += `<div class="muted" style="margin-top:6px;">Stadium wordt getoond zodra T, N en M zijn ingevuld.</div>`;
     }
 
-    const risk = bepaalRisico(state.T, histoChoice);
+    const risk = bepaalRisico(state.T, histoChoices);
 
     if(risk){
       html += `<div style="margin-top:6px;"><b>Risicogroep:</b> <span class="${risk.cls}">${risk.label}</span></div>`;
     } else {
-      html += `<div class="muted" style="margin-top:6px;"><b>Risicogroep:</b> wordt getoond zodra T én één histopathologie/tumorstatus-optie zijn gekozen.</div>`;
+      html += `<div class="muted" style="margin-top:6px;"><b>Risicogroep:</b> wordt getoond zodra T én ten minste één histopathologie/tumorstatus-optie is gekozen.</div>`;
     }
 
     document.getElementById("output").innerHTML = html;
@@ -421,33 +584,32 @@
     const policyText = document.getElementById("policyText");
     if(allTNM && risk){
       policyBox.style.display = "block";
-      policyText.innerHTML = beleidTekst(risk.label, state.N);
+      policyText.innerHTML = beleidTekst(risk.label, state.N, state.M, complicatingFactors, histoChoices);
     } else {
       policyBox.style.display = "none";
       policyText.innerHTML = "";
     }
   }
 
-  // T & M clicks
-  document.querySelectorAll(".item[data-group=T]").forEach(i=>{
-    i.onclick = ()=>{
-      document.querySelectorAll(".item[data-group=T]").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".item[data-group=T]").forEach(i => {
+    i.onclick = () => {
+      document.querySelectorAll(".item[data-group=T]").forEach(x => x.classList.remove("active"));
       i.classList.add("active");
       state.T = i.dataset.value;
       update();
     };
   });
-  document.querySelectorAll(".item[data-group=M]").forEach(i=>{
-    i.onclick = ()=>{
-      document.querySelectorAll(".item[data-group=M]").forEach(x=>x.classList.remove("active"));
+
+  document.querySelectorAll(".item[data-group=M]").forEach(i => {
+    i.onclick = () => {
+      document.querySelectorAll(".item[data-group=M]").forEach(x => x.classList.remove("active"));
       i.classList.add("active");
       state.M = i.dataset.value;
       update();
     };
   });
 
-  // N toggle
-  document.getElementById("btnClinical").onclick = ()=>{
+  document.getElementById("btnClinical").onclick = () => {
     nMode = "clinical";
     document.getElementById("btnClinical").classList.add("active");
     document.getElementById("btnPath").classList.remove("active");
@@ -455,7 +617,8 @@
     renderN();
     update();
   };
-  document.getElementById("btnPath").onclick = ()=>{
+
+  document.getElementById("btnPath").onclick = () => {
     nMode = "path";
     document.getElementById("btnPath").classList.add("active");
     document.getElementById("btnClinical").classList.remove("active");
@@ -464,17 +627,15 @@
     update();
   };
 
-  
-  // Recidief selection
-  document.querySelectorAll('input[name="recidief"]').forEach(r=>{
+  document.querySelectorAll('input[name="recidief"]').forEach(r => {
     const row = r.closest(".radioRow");
-    row.addEventListener("click", ()=>{
+    row.addEventListener("click", () => {
       r.checked = true;
-      r.dispatchEvent(new Event("change", {bubbles:true}));
+      r.dispatchEvent(new Event("change", { bubbles:true }));
     });
-    r.onchange = ()=>{
+    r.onchange = () => {
       recidief = r.value;
-      document.querySelectorAll('input[name="recidief"]').forEach(x=>{
+      document.querySelectorAll('input[name="recidief"]').forEach(x => {
         x.closest(".radioRow").classList.remove("active");
       });
       row.classList.add("active");
@@ -482,22 +643,32 @@
     };
   });
 
-  // Histopathology selection + highlight
-  document.querySelectorAll('input[name="histo"]').forEach(r=>{
-    const row = r.closest(".radioRow");
-    row.addEventListener("click", ()=>{
-      r.checked = true;
-      r.dispatchEvent(new Event("change", {bubbles:true}));
+  document.querySelectorAll('input[name="histo"]').forEach(input => {
+    const row = input.closest(".radioRow");
+    row.addEventListener("click", (e) => {
+      e.preventDefault();
+      input.checked = !input.checked;
+      input.dispatchEvent(new Event("change", { bubbles:true }));
     });
-    r.onchange = ()=>{
-      histoChoice = r.value;
-      document.querySelectorAll(".radioRow").forEach(x=>x.classList.remove("active"));
-      row.classList.add("active");
+    input.addEventListener("change", () => {
+      updateCheckboxGroup("histo", "histoChoices");
       update();
-    };
+    });
   });
 
-  // Init
+  document.querySelectorAll('input[name="complicaties"]').forEach(input => {
+    const row = input.closest(".radioRow");
+    row.addEventListener("click", (e) => {
+      e.preventDefault();
+      input.checked = !input.checked;
+      input.dispatchEvent(new Event("change", { bubbles:true }));
+    });
+    input.addEventListener("change", () => {
+      updateCheckboxGroup("complicaties", "complicatingFactors");
+      update();
+    });
+  });
+
   renderN();
   update();
 </script>
