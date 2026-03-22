@@ -349,6 +349,14 @@
     return N;
   }
 
+  function isNodePositive(N){
+    return !!(N && N !== "N0");
+  }
+
+  function isAdvancedNodePositive(N){
+    return !!(N && N !== "N0" && N !== "N1");
+  }
+
   function bepaalStadium(T, N, M){
     const TG = tGroup(T);
     const NG = nGroup(N);
@@ -389,107 +397,111 @@
     return `<ul>${filtered.map(item => `<li>${item}</li>`).join("")}</ul>`;
   }
 
-  function heeftMDOAdvies(riskLabel, factors, Nbase, Mbase){
+  function heeftIndicatieAdjuvanteRadiotherapie(factors, histos){
+    if(factors.includes("surgery_not_possible")) return false;
+    return (
+      factors.includes("margins_not_achievable") ||
+      recidief === "ja" ||
+      histos.includes("pni_inside") ||
+      histos.includes("pni_outside")
+    );
+  }
+
+  function heeftMDOAdvies(riskLabel, factors, Nbase, Mbase, histos){
     return (
       riskLabel === "Hoog-risico" ||
       factors.includes("tissue_sparing") ||
       factors.includes("surgery_not_possible") ||
       factors.includes("radicality_not_feasible") ||
-      (Nbase && Nbase !== "N0") ||
-      (Mbase && Mbase !== "M0")
+      isNodePositive(Nbase) ||
+      (Mbase && Mbase !== "M0") ||
+      heeftIndicatieAdjuvanteRadiotherapie(factors, histos)
     );
   }
 
-  function getTherapieVoorstel(riskLabel, factors, Nbase, Mbase){
+  function getTherapieVoorstel(riskLabel, factors, Nbase, Mbase, histos){
     const adviezen = [];
+    const mdoVanToepassing = heeftMDOAdvies(riskLabel, factors, Nbase, Mbase, histos);
+    const nodePositive = isNodePositive(Nbase);
+    const surgeryNotPossible = factors.includes("surgery_not_possible");
+    const ossaleVerdacht = factors.includes("osseous_or_deep_soft_tissue_suspicion");
+
+    function voegToegevoegdeZinnenToe(tekst, voegDissectieToe = true){
+      let resultaat = tekst;
+
+      if(!surgeryNotPossible && nodePositive && voegDissectieToe){
+        resultaat += ". Chirurgische dissectie van het betreffende lymfekliergebied.";
+      }
+      if(ossaleVerdacht){
+        resultaat += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(mdoVanToepassing){
+        resultaat += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      return resultaat;
+    }
 
     if(factors.includes("margins_not_achievable")){
-      let tekst = "Zie advies adjuvante radiotherapie";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+      adviezen.push(voegToegevoegdeZinnenToe("Zie advies adjuvante radiotherapie"));
       return formatAdviezen(adviezen);
     }
 
-    if(factors.includes("surgery_not_possible")){
-      let tekst = "Overweeg primaire radiotherapie";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+    if(surgeryNotPossible){
+      adviezen.push(voegToegevoegdeZinnenToe("Overweeg primaire radiotherapie of systemische therapie indien primaire radiotherapie niet mogelijk is", false));
       return formatAdviezen(adviezen);
     }
 
     if(factors.includes("ill_defined") || factors.includes("tissue_sparing")){
-      let tekst = "Micrografische chirurgie volgens Mohs of Breuninger";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+      const basisTekst = factors.includes("tissue_sparing")
+        ? "Micrografische chirurgie volgens Mohs of Breuninger of overweeg radiotherapie"
+        : "Micrografische chirurgie volgens Mohs of Breuninger";
+      adviezen.push(voegToegevoegdeZinnenToe(basisTekst));
       return formatAdviezen(adviezen);
     }
 
     if(riskLabel === "Laag-risico"){
-      let tekst = "Conventionele excisie met een marge van ≥4 mm (met een vrije histologische marge van ≥1 mm)";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+      adviezen.push(voegToegevoegdeZinnenToe("Conventionele excisie met een marge van ≥4 mm (met een vrije histologische marge van ≥1 mm)"));
     }
     if(riskLabel === "Intermediair-risico"){
-      let tekst = "Conventionele excisie met een marge van ≥6 mm (met een vrije histologische marge ≥2 mm)";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+      adviezen.push(voegToegevoegdeZinnenToe("Conventionele excisie met een marge van ≥6 mm (met een vrije histologische marge ≥2 mm)"));
     }
     if(riskLabel === "Hoog-risico"){
-      let tekst = "Conventionele excisie met een marge van ≥10 mm (met een vrije histologische marge ≥2 mm)";
-      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
-        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
-      }
-      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
-        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
-      }
-      adviezen.push(tekst);
+      adviezen.push(voegToegevoegdeZinnenToe("Conventionele excisie met een marge van ≥10 mm (met een vrije histologische marge ≥2 mm)"));
     }
 
     return formatAdviezen(adviezen);
   }
 
-  function getAdjuvanteRadiotherapie(factors, histos){
-    const indicatie =
-      factors.includes("margins_not_achievable") ||
-      recidief === "ja" ||
-      histos.includes("pni_inside") ||
-      histos.includes("pni_outside");
+  function getAdjuvanteRadiotherapie(factors, histos, Nbase){
+    if(factors.includes("surgery_not_possible")){
+      return "Geen indicatie voor adjuvante radiotherapie na behandeling van de primaire tumor";
+    }
 
-    return indicatie ? "Indicatie voor adjuvante radiotherapie." : "Geen indicatie.";
+    const adviezen = [];
+    const indicatie =
+      heeftIndicatieAdjuvanteRadiotherapie(factors, histos);
+
+    if(indicatie){
+      adviezen.push("Indicatie voor adjuvante radiotherapie na chirurgische behandeling van de primaire tumor.");
+    } else {
+      adviezen.push("Geen indicatie voor adjuvante radiotherapie na chirurgische behandeling van de primaire tumor.");
+    }
+
+    if(isAdvancedNodePositive(Nbase)){
+      adviezen.push("Overweeg behandeling met adjuvante radiotherapie van lymfekliermetastasen.");
+    }
+
+    return formatAdviezen(adviezen);
   }
 
-  function getMDOadvies(riskLabel, factors, Nbase, Mbase){
+  function getMDOadvies(riskLabel, factors, Nbase, Mbase, histos){
     const heeftReferentiecentrumAdvies =
       riskLabel === "Hoog-risico" ||
       factors.includes("tissue_sparing") ||
       factors.includes("surgery_not_possible") ||
-      (Nbase && Nbase !== "N0") ||
-      (Mbase && Mbase !== "M0");
+      isNodePositive(Nbase) ||
+      (Mbase && Mbase !== "M0") ||
+      heeftIndicatieAdjuvanteRadiotherapie(factors, histos);
 
     if(heeftReferentiecentrumAdvies){
       return "Bespreek in een multidisciplinair team van een referentiecentrum.";
@@ -556,11 +568,11 @@
   function beleidTekst(r, Nbase, Mbase, factors, histos){
     return `
       <h4>Therapie-voorstel</h4>
-      ${getTherapieVoorstel(r, factors, Nbase, Mbase)}
+      ${getTherapieVoorstel(r, factors, Nbase, Mbase, histos)}
       <h4>Adjuvante radiotherapie</h4>
-      ${getAdjuvanteRadiotherapie(factors, histos)}
+      ${getAdjuvanteRadiotherapie(factors, histos, Nbase)}
       <h4>MDO</h4>
-      ${getMDOadvies(r, factors, Nbase, Mbase)}
+      ${getMDOadvies(r, factors, Nbase, Mbase, histos)}
       <h4>Follow-up</h4>
       ${getFollowUp(r)}
       <h4>Beeldvorming</h4>
