@@ -274,9 +274,9 @@
     <span class="text">Na irradicale excisie kunnen de beoogde histopathologische marges niet behaald worden bij re-excisie</span>
   </label>
 
-  <label class="radioRow compRow" title="Chirurgische radicaliteit niet haalbaar">
+  <label class="radioRow compRow" title="met een conventionele excisie geen histopathologisch tumorvrije marge te behalen (of een vrije marge met micrografisch gecontroleerde chirurgie)">
     <input type="checkbox" name="complicaties" value="radicality_not_feasible">
-    <span class="text">Chirurgische radicaliteit niet haalbaar</span>
+    <span class="text">met een conventionele excisie geen histopathologisch tumorvrije marge te behalen (of een vrije marge met micrografisch gecontroleerde chirurgie)</span>
   </label>
 
   <label class="radioRow compRow" title="Chirurgische behandeling in het geheel niet mogelijk">
@@ -389,27 +389,85 @@
     return `<ul>${filtered.map(item => `<li>${item}</li>`).join("")}</ul>`;
   }
 
-  function getTherapieVoorstel(riskLabel, factors){
+  function heeftMDOAdvies(riskLabel, factors, Nbase, Mbase){
+    return (
+      riskLabel === "Hoog-risico" ||
+      factors.includes("tissue_sparing") ||
+      factors.includes("surgery_not_possible") ||
+      factors.includes("radicality_not_feasible") ||
+      (Nbase && Nbase !== "N0") ||
+      (Mbase && Mbase !== "M0")
+    );
+  }
+
+  function getTherapieVoorstel(riskLabel, factors, Nbase, Mbase){
     const adviezen = [];
 
+    if(factors.includes("margins_not_achievable")){
+      let tekst = "Zie advies adjuvante radiotherapie";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
+      return formatAdviezen(adviezen);
+    }
+
     if(factors.includes("surgery_not_possible")){
-      adviezen.push("Overweeg primaire radiotherapie.");
+      let tekst = "Overweeg primaire radiotherapie";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
       return formatAdviezen(adviezen);
     }
 
     if(factors.includes("ill_defined") || factors.includes("tissue_sparing")){
-      adviezen.push("Mohs-micrografische chirurgie of excisie volgens Breuninger methode.");
+      let tekst = "Micrografische chirurgie volgens Mohs of Breuninger";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
       return formatAdviezen(adviezen);
     }
 
     if(riskLabel === "Laag-risico"){
-      adviezen.push("Conventionele excisie met een marge van ≥4 mm (met een vrije histologische marge van ≥1 mm).");
+      let tekst = "Conventionele excisie met een marge van ≥4 mm (met een vrije histologische marge van ≥1 mm)";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
     }
     if(riskLabel === "Intermediair-risico"){
-      adviezen.push("Conventionele excisie met een marge van ≥6 mm (met een vrije histologische marge ≥2 mm).");
+      let tekst = "Conventionele excisie met een marge van ≥6 mm (met een vrije histologische marge ≥2 mm)";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
     }
     if(riskLabel === "Hoog-risico"){
-      adviezen.push("Conventionele excisie met een marge van ≥10 mm (met een vrije histologische marge ≥2 mm).");
+      let tekst = "Conventionele excisie met een marge van ≥10 mm (met een vrije histologische marge ≥2 mm)";
+      if(factors.includes("osseous_or_deep_soft_tissue_suspicion")){
+        tekst += ". Zie onder kopje Beeldvorming het advies voor pre-operatieve beeldvorming";
+      }
+      if(heeftMDOAdvies(riskLabel, factors, Nbase, Mbase)){
+        tekst += ". Zie advies onder kopje MDO alvorens therapie te starten.";
+      }
+      adviezen.push(tekst);
     }
 
     return formatAdviezen(adviezen);
@@ -444,29 +502,36 @@
     return "Geen aanvullend MDO-advies.";
   }
 
-  function getBeeldvorming(r, Nbase, factors, histos){
+  function getBeeldvorming(r, Nbase, histos, factors){
     const adviezen = [];
+    const isPathologischN = (nMode === "path");
+    const heeftPNI = histos.includes("pni_outside") || histos.includes("pni_inside");
+    const heeftOssaleFactor = factors.includes("osseous_or_deep_soft_tissue_suspicion");
 
-    if(r === "Hoog-risico"){
-      adviezen.push("Verricht in de diagnostische fase bij hoog-risico cPCC een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
-    }
-    if(r === "Laag-risico"){
-      adviezen.push("Verricht in de diagnostische fase bij laag-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
-    }
-    if(r === "Intermediair-risico"){
-      adviezen.push("Verricht in de diagnostische fase bij intermediair-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+    const magEchoAdviseren = !isPathologischN;
+    const cNisN0 = (nMode === "clinical" && Nbase === "N0");
+    const heeftKlinischeRegionaleLymfadenopathie = (nMode === "clinical" && Nbase && Nbase !== "N0");
+
+    if(magEchoAdviseren){
+      if(r === "Hoog-risico"){
+        adviezen.push("Verricht in de diagnostische fase bij hoog-risico cPCC een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+      } else if(r === "Intermediair-risico" && heeftKlinischeRegionaleLymfadenopathie){
+        adviezen.push("Verricht in de diagnostische fase bij intermediair-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+      } else if(r === "Laag-risico" && heeftKlinischeRegionaleLymfadenopathie && !cNisN0){
+        adviezen.push("Verricht in de diagnostische fase bij laag-risico cPCC met regionale lymfadenopathie en/of klinisch palpabele lymfeklieren een echografie die gecombineerd kan worden met een cytologische punctie van radiologisch suspecte lymfklieren, bij voorkeur in één sessie.");
+      }
     }
 
     if(Nbase && Nbase !== "N0"){
       adviezen.push("Verricht een FDG PET-CT bij patiënten met lymfogeen gemetastaseerd cPCC als screeningsonderzoek naar afstandsmetastasen.");
     }
 
-    if(
-      factors.includes("osseous_or_deep_soft_tissue_suspicion") ||
-      histos.includes("pni_outside") ||
-      histos.includes("pni_inside")
-    ){
+    if(heeftOssaleFactor || heeftPNI){
       adviezen.push("Overweeg een CT of MRI ter beoordeling van ossale betrokkenheid/infiltratie in diepere weke delen.");
+    }
+
+    if(adviezen.length === 0){
+      return "Geen aanvullende beeldvomring geindiceerd";
     }
 
     return formatAdviezen(adviezen);
@@ -491,7 +556,7 @@
   function beleidTekst(r, Nbase, Mbase, factors, histos){
     return `
       <h4>Therapie-voorstel</h4>
-      ${getTherapieVoorstel(r, factors)}
+      ${getTherapieVoorstel(r, factors, Nbase, Mbase)}
       <h4>Adjuvante radiotherapie</h4>
       ${getAdjuvanteRadiotherapie(factors, histos)}
       <h4>MDO</h4>
@@ -499,7 +564,7 @@
       <h4>Follow-up</h4>
       ${getFollowUp(r)}
       <h4>Beeldvorming</h4>
-      ${getBeeldvorming(r, Nbase, factors, histos)}
+      ${getBeeldvorming(r, Nbase, histos, factors)}
     `;
   }
 
