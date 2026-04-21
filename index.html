@@ -704,11 +704,12 @@
     return formatAdviezen(adviezen);
   }
 
-  function getFollowUp(r){
+  function getFollowUp(r, Nbase, Mbase){
     const adviezen = [];
-    if(r === "Laag-risico") adviezen.push("Verricht na radicale excisie een post-operatieve controle binnen 3 maanden en een controle 1 keer per 6–12 maanden gedurende de eerste twee jaar.");
-    if(r === "Intermediair-risico") adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer in het derde jaar.");
-    if(r === "Hoog-risico") adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer per jaar gedurende het derde, vierde en vijfde jaar.");
+    const followUpRisico = (isNodePositive(Nbase) || Mbase === "M1") ? "Hoog-risico" : r;
+    if(followUpRisico === "Laag-risico") adviezen.push("Verricht na radicale excisie een post-operatieve controle binnen 3 maanden en een controle 1 keer per 6–12 maanden gedurende de eerste twee jaar.");
+    if(followUpRisico === "Intermediair-risico") adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer in het derde jaar.");
+    if(followUpRisico === "Hoog-risico") adviezen.push("Verricht na radicale excisie een controle 1 keer per 3–4 maanden gedurende de eerste twee jaar en 1 keer per jaar gedurende het derde, vierde en vijfde jaar.");
     return formatAdviezen(adviezen);
   }
 
@@ -721,7 +722,7 @@
       <h4>MDO</h4>
       ${getMDOadvies(r, factors, Nbase, Mbase, histos)}
       <h4>Follow-up</h4>
-      ${getFollowUp(r)}
+      ${getFollowUp(r, Nbase, Mbase)}
       <h4>Beeldvorming</h4>
       ${getBeeldvorming(r, Nbase, histos, factors)}
     `;
@@ -786,7 +787,16 @@
 
     const risk = bepaalRisico(effT, histoChoices);
     if(risk){
-      html += `<div style="margin-top:6px;"><b>Risicogroep:</b> <span class="${risk.cls}">${risk.label}</span></div>`;
+      let risicoLabel = risk.label;
+      let risicoCls = risk.cls;
+      if(state.M === "M1"){
+        risicoLabel = "Hoog-risico (vanwege afstandsmetastasen)";
+        risicoCls = "risk-high";
+      } else if(isNodePositive(state.N)){
+        risicoLabel = "Hoog-risico (vanwege lymfogene metastasen)";
+        risicoCls = "risk-high";
+      }
+      html += `<div style="margin-top:6px;"><b>Risicogroep:</b> <span class="${risicoCls}">${risicoLabel}</span></div>`;
     } else {
       html += `<div class="muted" style="margin-top:6px;"><b>Risicogroep:</b> wordt getoond zodra T én ten minste één histopathologie/tumorstatus-optie is gekozen.</div>`;
     }
